@@ -88,6 +88,17 @@ ${message}`
 
   // commit keeps being unverified as the signing somehow is not what git expects
   console.log(commit)
+  const { signatures } = await openpgp.verify({
+    message: openpgp.cleartext.fromText(commitInfo), // CleartextMessage or Message object
+    signature: await openpgp.signature.readArmored(detachedSignature), // parse detached signature
+    publicKeys: (await openpgp.key.readArmored(process.env.PUBLIC_KEY)).keys, // for verification
+  })
+  const { valid, keyid } = signatures[0]
+  if (valid) {
+    console.log('signed by key id ' + keyid.toHex())
+  } else {
+    throw new Error('signature could not be verified')
+  }
 }
 
 run().catch(console.log)
