@@ -40,31 +40,18 @@ const run = async () => {
 
   const message = 'this is a test ' + date.getTime()
 
-  const tzo = -0 //date.getTimezoneOffset()
-  const dif = tzo >= 0 ? '+' : '-'
-  const pad = num => {
-    var norm = Math.floor(Math.abs(num))
-    return (norm < 10 ? '0' : '') + norm
-  }
-
+  // build the git internal commit to sign it as payload
   const commitInfo = `tree ${treeSha}
 parent ${branchSha}
-author Julius Breckel <julius.breckel@gmail.com> ${(date.getTime() / 1000).toFixed(0)} ${dif +
-    pad(tzo / 60) +
-    pad(tzo % 60)}
-committer Julius Breckel <julius.breckel@gmail.com> ${(date.getTime() / 1000).toFixed(0)} ${dif +
-    pad(tzo / 60) +
-    pad(tzo % 60)}
+author Julius Breckel <julius.breckel@gmail.com> ${Math.floor(date.getTime() / 1000)} +000
+committer Julius Breckel <julius.breckel@gmail.com> ${Math.floor(date.getTime() / 1000)} +000
 
 ${message}
 `
 
-  console.log(commitInfo)
-
   const {
     keys: [privateKey],
   } = await openpgp.key.readArmored(process.env.PRIVATE_KEY)
-  // await privateKey.decrypt(process.env.PRIVATE_KEY_PASS);
 
   const { signature: detachedSignature } = await openpgp.sign({
     message: openpgp.cleartext.fromText(commitInfo), // CleartextMessage or Message object
@@ -87,12 +74,15 @@ ${message}
       email: 'julius.breckel@gmail.com',
       date: date.toISOString(),
     },
+    committer: {
+      name: 'Julius Breckel',
+      email: 'julius.breckel@gmail.com',
+      date: date.toISOString(),
+    },
     parents: [branchSha],
     tree: treeSha,
     signature,
   })
-  console.log(commit)
-  console.log('----')
 
   const data = await octokit.git.updateRef({
     owner,
@@ -101,7 +91,8 @@ ${message}
     sha: commit.data.sha,
   })
 
-  console.log(data)
+  // commit keeps being unverified as the signing somehow is not what git expects
+  console.log(commit)
 }
 
 run().catch(console.log)
