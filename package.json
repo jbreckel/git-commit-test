@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "@octokit/rest": "^17.1.1"
+    "@octokit/rest": "^17.1.1",
+    "openpgp": "^4.10.1"
   }
 }
