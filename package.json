@@ -2,5 +2,8 @@
   "dependencies": {
     "@octokit/rest": "^17.1.1",
     "openpgp": "^4.10.1"
+  },
+  "devDependencies": {
+    "prettier": "^2.0.2"
   }
 }
