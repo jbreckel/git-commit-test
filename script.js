@@ -43,11 +43,10 @@ const run = async () => {
   // build the git internal commit to sign it as payload
   const commitInfo = `tree ${treeSha}
 parent ${branchSha}
-author Julius Breckel <julius.breckel@gmail.com> ${Math.floor(date.getTime() / 1000)} +000
-committer Julius Breckel <julius.breckel@gmail.com> ${Math.floor(date.getTime() / 1000)} +000
+author Julius Breckel <julius.breckel@gmail.com> ${Math.floor(date.getTime() / 1000)} +0000
+committer Julius Breckel <julius.breckel@gmail.com> ${Math.floor(date.getTime() / 1000)} +0000
 
-${message}
-`
+${message}`
 
   const {
     keys: [privateKey],
@@ -59,11 +58,7 @@ ${message}
     detached: true,
   })
 
-  // openpgp has a version and comment in the signature that is not in the gpg signature
   const signature = detachedSignature
-    .split('\n')
-    .filter(line => !line.startsWith('Version') && !line.startsWith('Comment'))
-    .join('\n')
 
   const commit = await octokit.git.createCommit({
     owner,
